@@ -43,10 +43,13 @@ pub fn main() !void {
 
     gl.GenVertexArrays(1, @ptrCast(&vao));
     gl.GenBuffers(1, @ptrCast(&vbo));
+    defer gl.DeleteBuffers(1, @ptrCast(&vbo));
 
     gl.BindVertexArray(vao);
+    defer gl.BindVertexArray(0);
 
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
+    defer gl.BindBuffer(gl.ARRAY_BUFFER, 0);
 
     gl.BufferData(gl.ARRAY_BUFFER, vertices.len * @sizeOf(f32), &vertices, gl.STATIC_DRAW);
 
@@ -55,6 +58,27 @@ pub fn main() !void {
     gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), offset);
     gl.EnableVertexAttribArray(0);
 
+    //shader
+    const vertexShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("vert.glsl"));
+    const fragmentShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("frag.glsl"));
+
+    const vertShader: u32 = gl.CreateShader(gl.VERTEX_SHADER);
+    const fragShader: u32 = gl.CreateShader(gl.FRAGMENT_SHADER);
+
+    gl.ShaderSource(vertShader, 1, vertexShaderSource, null);
+    gl.CompileShader(vertShader);
+    gl.ShaderSource(fragShader, 1, fragmentShaderSource, null);
+    gl.CompileShader(fragShader);
+
+    const shader = gl.CreateProgram();
+    gl.AttachShader(shader, vertShader);
+    gl.AttachShader(shader, fragShader);
+    gl.LinkProgram(shader);
+
+    //shaders not necessary after linking to the program
+    gl.DeleteShader(vertShader);
+    gl.DeleteShader(fragShader);
+
     main_loop: while (true) {
         glfw.waitEvents();
         if (window.shouldClose()) break :main_loop;
@@ -62,6 +86,7 @@ pub fn main() !void {
         gl.ClearColor(0, 1, 0, 1);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
+        gl.UseProgram(shader);
         gl.BindVertexArray(vao);
         gl.DrawArrays(gl.TRIANGLES, 0, 3);
 
