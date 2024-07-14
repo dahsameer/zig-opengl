@@ -18,7 +18,7 @@ pub fn main() !void {
     defer glfw.terminate();
 
     // Create our window
-    const window = glfw.Window.create(640, 480, "fuck opengl", null, null, .{}) orelse {
+    const window = glfw.Window.create(800, 600, "fuck opengl", null, null, .{}) orelse {
         std.log.err("failed to create GLFW window: {?s}", .{glfw.getErrorString()});
         std.process.exit(1);
     };
@@ -32,9 +32,38 @@ pub fn main() !void {
     gl.makeProcTableCurrent(&procs);
     defer gl.makeProcTableCurrent(null);
 
+    const vertices = [_]f32{
+        -0.5, -0.5, 0,
+        0.5,  -0.5, 0,
+        0,    0.5,  0,
+    };
+
+    var vbo: u32 = undefined;
+    var vao: u32 = undefined;
+
+    gl.GenVertexArrays(1, @ptrCast(&vao));
+    gl.GenBuffers(1, @ptrCast(&vbo));
+
+    gl.BindVertexArray(vao);
+
+    gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
+
+    gl.BufferData(gl.ARRAY_BUFFER, vertices.len * @sizeOf(f32), &vertices, gl.STATIC_DRAW);
+
+    const offset: usize = 0;
+
+    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), offset);
+    gl.EnableVertexAttribArray(0);
+
     main_loop: while (true) {
         glfw.waitEvents();
         if (window.shouldClose()) break :main_loop;
+
+        gl.ClearColor(0, 1, 0, 1);
+        gl.Clear(gl.COLOR_BUFFER_BIT);
+
+        gl.BindVertexArray(vao);
+        gl.DrawArrays(gl.TRIANGLES, 0, 3);
 
         window.swapBuffers();
     }
