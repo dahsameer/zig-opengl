@@ -18,7 +18,7 @@ pub fn main() !void {
     defer glfw.terminate();
 
     // Create our window
-    const window = glfw.Window.create(800, 600, "fuck opengl", null, null, .{}) orelse {
+    const window = glfw.Window.create(800, 800, "fuck opengl", null, null, .{}) orelse {
         std.log.err("failed to create GLFW window: {?s}", .{glfw.getErrorString()});
         std.process.exit(1);
     };
@@ -33,13 +33,19 @@ pub fn main() !void {
     defer gl.makeProcTableCurrent(null);
 
     const vertices = [_]f32{
-        -0.5, -0.5, 0,
-        0.5,  -0.5, 0,
-        0,    0.5,  0,
+        -0.5, -0.5, 1,   0,   0,
+        -0.5, 0.5,  0,   1,   0,
+        0.5,  0.5,  0,   0,   1,
+        0.5,  -0.5, 0.5, 0.5, 0.5,
+    };
+    const indices = [_]u32{
+        0, 2, 1,
+        0, 3, 2,
     };
 
     var vbo: u32 = undefined;
     var vao: u32 = undefined;
+    var ibo: u32 = undefined;
 
     gl.GenVertexArrays(1, @ptrCast(&vao));
     gl.GenBuffers(1, @ptrCast(&vbo));
@@ -48,15 +54,20 @@ pub fn main() !void {
     gl.BindVertexArray(vao);
     defer gl.BindVertexArray(0);
 
+    gl.GenBuffers(1, @ptrCast(&ibo));
+    gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ibo);
+    gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, @sizeOf(@TypeOf(indices)), &indices, gl.STATIC_DRAW);
+    defer gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, 0);
+
     gl.BindBuffer(gl.ARRAY_BUFFER, vbo);
     defer gl.BindBuffer(gl.ARRAY_BUFFER, 0);
 
-    gl.BufferData(gl.ARRAY_BUFFER, vertices.len * @sizeOf(f32), &vertices, gl.STATIC_DRAW);
+    gl.BufferData(gl.ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, gl.STATIC_DRAW);
 
-    const offset: usize = 0;
-
-    gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * @sizeOf(f32), offset);
+    gl.VertexAttribPointer(0, 2, gl.FLOAT, gl.FALSE, 5 * @sizeOf(f32), 0);
+    gl.VertexAttribPointer(1, 3, gl.FLOAT, gl.FALSE, 5 * @sizeOf(f32), 2 * @sizeOf(f32));
     gl.EnableVertexAttribArray(0);
+    gl.EnableVertexAttribArray(1);
 
     //shader
     const vertexShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("resources/shaders/vert.glsl"));
@@ -83,12 +94,13 @@ pub fn main() !void {
         glfw.waitEvents();
         if (window.shouldClose()) break :main_loop;
 
-        gl.ClearColor(0, 1, 0, 1);
+        gl.ClearColor(0.07, 0.13, 0.17, 1);
         gl.Clear(gl.COLOR_BUFFER_BIT);
 
         gl.UseProgram(shader);
         gl.BindVertexArray(vao);
-        gl.DrawArrays(gl.TRIANGLES, 0, 3);
+
+        gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, 0);
 
         window.swapBuffers();
     }
