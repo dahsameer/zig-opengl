@@ -59,8 +59,8 @@ pub fn main() !void {
     gl.EnableVertexAttribArray(0);
 
     //shader
-    const vertexShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("vert.glsl"));
-    const fragmentShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("frag.glsl"));
+    const vertexShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("resources/shaders/vert.glsl"));
+    const fragmentShaderSource: [*]const [*]const u8 = @ptrCast(&@embedFile("resources/shaders/frag.glsl"));
 
     const vertShader: u32 = gl.CreateShader(gl.VERTEX_SHADER);
     const fragShader: u32 = gl.CreateShader(gl.FRAGMENT_SHADER);
