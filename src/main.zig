@@ -1,13 +1,8 @@
 const std = @import("std");
 
 const c = @cImport({
+    @cInclude("glad/glad.h");
     @cInclude("GLFW/glfw3.h");
-});
-
-const gl = @cImport({
-    @cDefine("WIN32_LEAN_AND_MEAN", "1");
-    @cInclude("windows.h");
-    @cInclude("GL/gl.h");
 });
 
 fn errorCallback(err: c_int, description: [*c]const u8) callconv(.C) void {
@@ -52,7 +47,7 @@ pub fn main() !void {
     c.glfwSwapInterval(1); // Enable VSync
 
     // Print OpenGL version
-    const version = gl.glGetString(gl.GL_VERSION);
+    const version = c.glGetString(c.GL_VERSION);
     if (version != null) {
         std.debug.print("OpenGL Version: {s}\n", .{version});
     }
@@ -61,6 +56,22 @@ pub fn main() !void {
 
     c.glViewport(0, 0, 800, 600);
     _ = c.glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    const vertices = [_]f32{ -0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0 };
+    var VAO: c_uint = undefined;
+    var VBO: c_uint = undefined;
+
+    c.glGenLists(1, &VAO);
+    c.glGenBuffers(1, &VBO);
+
+    defer {
+        c.glDeleteVertexArrays(1, &VAO);
+        c.glDeleteBuffers(1, &VBO);
+    }
+
+    c.glBindBuffer(c.GL_ARRAY_BUFFER, VBO);
+
+    c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(vertices), vertices, c.GL_STATIC_DRAW);
+
     // Main loop
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
         // input handling

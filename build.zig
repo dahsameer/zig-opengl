@@ -11,16 +11,19 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // Windows system libraries for OpenGL
-    exe.linkSystemLibrary("opengl32");
-    exe.linkSystemLibrary("user32");
-    exe.linkSystemLibrary("gdi32");
-    exe.linkSystemLibrary("kernel32");
-
+    // Add GLFW
     exe.addIncludePath(b.path("libs/glfw/include"));
     exe.addLibraryPath(b.path("libs/glfw/win-vc2022"));
-    exe.linkSystemLibrary("glfw3");
+    exe.linkSystemLibrary("glfw3_mt");
 
+    // Add GLAD
+    exe.addCSourceFile(.{ .file = b.path("libs/glad/src/glad.c"), .flags = &.{} });
+    exe.addIncludePath(b.path("libs/glad/include"));
+
+    // Link Windows OpenGL libraries
+    exe.linkSystemLibrary("opengl32");
+    exe.linkSystemLibrary("gdi32");
+    exe.linkSystemLibrary("user32");
     exe.linkLibC();
 
     b.installArtifact(exe);
