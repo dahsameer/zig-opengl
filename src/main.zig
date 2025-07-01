@@ -18,6 +18,12 @@ fn framebuffer_size_callback(_: ?*c.GLFWwindow, width: c_int, height: c_int) cal
     c.glViewport(0, 0, width, height);
 }
 
+fn processInput(window: ?*c.GLFWwindow) callconv(.C) void {
+    if (c.glfwGetKey(window, c.GLFW_KEY_ESCAPE) == c.GLFW_PRESS) {
+        c.glfwSetWindowShouldClose(window, c.GLFW_TRUE);
+    }
+}
+
 pub fn main() !void {
     // Set error callback
     _ = c.glfwSetErrorCallback(errorCallback);
@@ -57,7 +63,15 @@ pub fn main() !void {
     _ = c.glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     // Main loop
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
-        c.glfwSwapBuffers(window);
+        // input handling
+        processInput(window);
+
+        // rendering commands here
+        c.glClearColor(0.6, 0.3, 0.3, 1.0);
+        c.glClear(c.GL_COLOR_BUFFER_BIT);
+
+        // check and call events and swap the buffers
         c.glfwPollEvents();
+        c.glfwSwapBuffers(window);
     }
 }
