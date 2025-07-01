@@ -14,6 +14,10 @@ fn errorCallback(err: c_int, description: [*c]const u8) callconv(.C) void {
     std.debug.print("GLFW Error {}: {s}\n", .{ err, description });
 }
 
+fn framebuffer_size_callback(_: ?*c.GLFWwindow, width: c_int, height: c_int) callconv(.C) void {
+    c.glViewport(0, 0, width, height);
+}
+
 pub fn main() !void {
     // Set error callback
     _ = c.glfwSetErrorCallback(errorCallback);
@@ -24,6 +28,7 @@ pub fn main() !void {
         return error.GLFWInitFailed;
     }
     defer c.glfwTerminate();
+    defer std.debug.print("Goodbye!\n", .{});
 
     // Configure GLFW
     c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -48,26 +53,11 @@ pub fn main() !void {
 
     std.debug.print("Window created successfully! Press ESC or close window to exit.\n", .{});
 
+    c.glViewport(0, 0, 800, 600);
+    _ = c.glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     // Main loop
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
-        c.glfwPollEvents();
-
-        // Handle ESC key
-        if (c.glfwGetKey(window, c.GLFW_KEY_ESCAPE) == c.GLFW_PRESS) {
-            c.glfwSetWindowShouldClose(window, c.GLFW_TRUE);
-        }
-
-        // Clear screen with changing colors
-        const time = @as(f64, c.glfwGetTime() * 1000.0) * 0.001;
-        const red = (@sin(time) + 1.0) * 0.5;
-        const green = (@sin(time + 2.0) + 1.0) * 0.5;
-        const blue = (@sin(time + 4.0) + 1.0) * 0.5;
-
-        gl.glClearColor(@floatCast(red), @floatCast(green), @floatCast(blue), 1.0);
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT);
-
         c.glfwSwapBuffers(window);
+        c.glfwPollEvents();
     }
-
-    std.debug.print("Goodbye!\n", .{});
 }
