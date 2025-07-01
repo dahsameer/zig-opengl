@@ -1,29 +1,22 @@
 .{
-    .name = "zig-opengl",
+    .name = .zigopengl,
     // This is a [Semantic Version](https://semver.org/).
     // In a future version of Zig it will be used for package deduplication.
-    .version = "0.0.0",
+    .version = "0.0.1",
+
+    .fingerprint = 0x2248f856e937f7aa,
 
     // This field is optional.
     // This is currently advisory only; Zig does not yet do anything
     // with this value.
-    //.minimum_zig_version = "0.11.0",
+    .minimum_zig_version = "0.14.1",
 
     // This field is optional.
     // Each dependency must either provide a `url` and `hash`, or a `path`.
     // `zig build --fetch` can be used to fetch all dependencies of a package, recursively.
     // Once all dependencies are fetched, `zig build` no longer requires
     // internet connectivity.
-    .dependencies = .{
-        .@"mach-glfw" = .{
-            .url = "https://pkg.machengine.org/mach-glfw/95bacce05bce0622039be6db46145d5f378ba50f.tar.gz",
-            .hash = "122009d5fa5aed0e9a75deed250450dec0705c0ead9bdb075db8ac41495992a834fc",
-        },
-        .zigglgen = .{
-            .url = "https://github.com/castholm/zigglgen/releases/download/v0.2.3/zigglgen.tar.gz",
-            .hash = "1220f4188a5e1bdbb15fd50e9ea322c0721384eeba9bc077e4179b0b0eeaa7fe4ad9",
-        },
-    },
+    .dependencies = .{},
     .paths = .{
         "build.zig",
         "build.zig.zon",
