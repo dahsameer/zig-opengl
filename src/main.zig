@@ -20,10 +20,8 @@ fn processInput(window: ?*c.GLFWwindow) callconv(.C) void {
 }
 
 pub fn main() !void {
-    // Set error callback
     _ = c.glfwSetErrorCallback(errorCallback);
 
-    // Initialize GLFW
     if (c.glfwInit() == c.GLFW_FALSE) {
         std.debug.print("Failed to initialize GLFW\n", .{});
         return error.GLFWInitFailed;
@@ -31,12 +29,10 @@ pub fn main() !void {
     defer c.glfwTerminate();
     defer std.debug.print("Goodbye!\n", .{});
 
-    // Configure GLFW
     c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MAJOR, 3);
     c.glfwWindowHint(c.GLFW_CONTEXT_VERSION_MINOR, 3);
     c.glfwWindowHint(c.GLFW_OPENGL_PROFILE, c.GLFW_OPENGL_CORE_PROFILE);
 
-    // Create window
     const window = c.glfwCreateWindow(800, 600, "Zig + GLFW + OpenGL", null, null);
     if (window == null) {
         std.debug.print("Failed to create GLFW window\n", .{});
@@ -44,9 +40,14 @@ pub fn main() !void {
     }
 
     c.glfwMakeContextCurrent(window);
-    c.glfwSwapInterval(1); // Enable VSync
+    c.glfwSwapInterval(1);
 
-    // Print OpenGL version
+    std.debug.print("Initializing GLAD...\n", .{});
+    if (c.gladLoadGLLoader(@ptrCast(&c.glfwGetProcAddress)) == 0) {
+        std.debug.print("Failed to initialize GLAD\n", .{});
+        return error.GLADInitFailed;
+    }
+
     const version = c.glGetString(c.GL_VERSION);
     if (version != null) {
         std.debug.print("OpenGL Version: {s}\n", .{version});
@@ -60,7 +61,7 @@ pub fn main() !void {
     var VAO: c_uint = undefined;
     var VBO: c_uint = undefined;
 
-    c.glGenLists(1, &VAO);
+    c.glGenVertexArrays(1, &VAO);
     c.glGenBuffers(1, &VBO);
 
     defer {
@@ -70,18 +71,14 @@ pub fn main() !void {
 
     c.glBindBuffer(c.GL_ARRAY_BUFFER, VBO);
 
-    c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(vertices), vertices, c.GL_STATIC_DRAW);
+    c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, c.GL_STATIC_DRAW);
 
-    // Main loop
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
-        // input handling
         processInput(window);
 
-        // rendering commands here
         c.glClearColor(0.6, 0.3, 0.3, 1.0);
         c.glClear(c.GL_COLOR_BUFFER_BIT);
 
-        // check and call events and swap the buffers
         c.glfwPollEvents();
         c.glfwSwapBuffers(window);
     }

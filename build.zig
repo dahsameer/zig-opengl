@@ -14,7 +14,7 @@ pub fn build(b: *std.Build) void {
     // Add GLFW
     exe.addIncludePath(b.path("libs/glfw/include"));
     exe.addLibraryPath(b.path("libs/glfw/win-vc2022"));
-    exe.linkSystemLibrary("glfw3_mt");
+    exe.linkSystemLibrary("glfw3dll");
 
     // Add GLAD
     exe.addCSourceFile(.{ .file = b.path("libs/glad/src/glad.c"), .flags = &.{} });
