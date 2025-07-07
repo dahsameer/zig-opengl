@@ -19,24 +19,6 @@ fn processInput(window: ?*c.GLFWwindow) void {
     }
 }
 
-// shaders
-const vertexShaderSource: [*c]const u8 =
-    \\#version 330 core
-    \\layout (location = 0) in vec3 aPos;
-    \\void main()
-    \\{
-    \\  gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    \\}
-;
-const fragmentShaderSource: [*c]const u8 =
-    \\#version 330 core
-    \\out vec4 FragColor;
-    \\void main()
-    \\{
-    \\  FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    \\}
-;
-
 pub fn main() !void {
     // setting a callback for error in glfw
     _ = c.glfwSetErrorCallback(errorCallback);
@@ -83,6 +65,10 @@ pub fn main() !void {
     // shader/program status check
     var success: c_int = undefined;
     var infoLog: [512:0]u8 = undefined;
+
+    // read shader source code from shader files, we have 2 files frag.glsl and vert.glsl
+    const vertexShaderSource: [*c]const u8 = @embedFile("resources/vert.glsl");
+    const fragmentShaderSource: [*c]const u8 = @embedFile("resources/frag.glsl");
 
     // vertex shader
     const vertexShader: c_uint = c.glCreateShader(c.GL_VERTEX_SHADER);
@@ -168,7 +154,7 @@ pub fn main() !void {
     c.glBindBuffer(c.GL_ARRAY_BUFFER, 0);
     c.glBindVertexArray(0);
 
-    c.glPolygonMode(c.GL_FRONT_AND_BACK, c.GL_LINE);
+    // c.glPolygonMode(c.GL_FRONT_AND_BACK, c.GL_LINE);
 
     while (c.glfwWindowShouldClose(window) == c.GLFW_FALSE) {
         processInput(window);
