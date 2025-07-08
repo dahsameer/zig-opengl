@@ -114,9 +114,9 @@ pub fn main() !void {
     defer c.glDeleteProgram(shaderProgram);
 
     const vertices = [_]f32{
-        0.5, -0.5, 0.0, // 1.0, 0.0, 0.0, // bottom right
-        -0.5, -0.5, 0.0, // 0.0, 1.0, 0.0, // bottom let
-        0.0, 0.5, 0.0, // 0.0, 0.0, 1.0, // top
+        0.5, -0.5, 0.0, 1.0, 0.0, 0.0, // bottom right
+        -0.5, -0.5, 0.0, 0.0, 1.0, 0.0, // bottom let
+        0.0, 0.5, 0.0, 0.0, 0.0, 1.0, // top
     };
 
     // const indices = [_]u32{
@@ -147,8 +147,18 @@ pub fn main() !void {
     // c.glBindBuffer(c.GL_ELEMENT_ARRAY_BUFFER, EBO);
     // c.glBufferData(c.GL_ELEMENT_ARRAY_BUFFER, @sizeOf(@TypeOf(indices)), &indices, c.GL_STATIC_DRAW);
 
-    c.glVertexAttribPointer(0, 3, c.GL_FLOAT, c.GL_FALSE, 3 * @sizeOf(f32), null);
+    c.glVertexAttribPointer(0, 3, c.GL_FLOAT, c.GL_FALSE, 6 * @sizeOf(f32), @ptrFromInt(0));
     c.glEnableVertexAttribArray(0);
+
+    c.glVertexAttribPointer(
+        1,
+        3,
+        c.GL_FLOAT,
+        c.GL_FALSE,
+        6 * @sizeOf(f32),
+        @ptrFromInt(3 * @sizeOf(f32)),
+    );
+    c.glEnableVertexAttribArray(1);
 
     c.glBindBuffer(c.GL_ARRAY_BUFFER, 0);
     c.glBindVertexArray(0);
