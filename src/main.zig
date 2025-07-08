@@ -114,29 +114,28 @@ pub fn main() !void {
     defer c.glDeleteProgram(shaderProgram);
 
     const vertices = [_]f32{
-        0.5, 0.5, 0.0, // top right
-        0.5, -0.5, 0.0, // bottom right
-        -0.5, -0.5, 0.0, // bottom left
-        -0.5, 0.5, 0.0, // top left
+        0.5, -0.5, 0.0, // 1.0, 0.0, 0.0, // bottom right
+        -0.5, -0.5, 0.0, // 0.0, 1.0, 0.0, // bottom let
+        0.0, 0.5, 0.0, // 0.0, 0.0, 1.0, // top
     };
 
-    const indices = [_]u32{
-        0, 1, 3, // first triangle
-        1, 2, 3, // second triangle
-    };
+    // const indices = [_]u32{
+    //     0, 1, 3, // first triangle
+    //     1, 2, 3, // second triangle
+    // };
 
     var VAO: c_uint = undefined;
     var VBO: c_uint = undefined;
-    var EBO: c_uint = undefined;
+    // var EBO: c_uint = undefined;
 
     c.glGenVertexArrays(1, &VAO);
     c.glGenBuffers(1, &VBO);
-    c.glGenBuffers(1, &EBO);
+    // c.glGenBuffers(1, &EBO);
 
     defer {
         c.glDeleteVertexArrays(1, &VAO);
         c.glDeleteBuffers(1, &VBO);
-        c.glDeleteBuffers(1, &EBO);
+        // c.glDeleteBuffers(1, &EBO);
     }
 
     // bind the vertex array object first, kthen bind and set vertex buffers and then configure vertex attributes
@@ -145,8 +144,8 @@ pub fn main() !void {
     c.glBindBuffer(c.GL_ARRAY_BUFFER, VBO);
     c.glBufferData(c.GL_ARRAY_BUFFER, @sizeOf(@TypeOf(vertices)), &vertices, c.GL_STATIC_DRAW);
 
-    c.glBindBuffer(c.GL_ELEMENT_ARRAY_BUFFER, EBO);
-    c.glBufferData(c.GL_ELEMENT_ARRAY_BUFFER, @sizeOf(@TypeOf(indices)), &indices, c.GL_STATIC_DRAW);
+    // c.glBindBuffer(c.GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // c.glBufferData(c.GL_ELEMENT_ARRAY_BUFFER, @sizeOf(@TypeOf(indices)), &indices, c.GL_STATIC_DRAW);
 
     c.glVertexAttribPointer(0, 3, c.GL_FLOAT, c.GL_FALSE, 3 * @sizeOf(f32), null);
     c.glEnableVertexAttribArray(0);
@@ -172,7 +171,8 @@ pub fn main() !void {
         c.glUseProgram(shaderProgram);
         c.glBindVertexArray(VAO);
         c.glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0);
-        c.glDrawElements(c.GL_TRIANGLES, 6, c.GL_UNSIGNED_INT, null);
+        // c.glDrawElements(c.GL_TRIANGLES, 6, c.GL_UNSIGNED_INT, null);
+        c.glDrawArrays(c.GL_TRIANGLES, 0, 3);
 
         c.glfwSwapBuffers(window);
         c.glfwPollEvents();
