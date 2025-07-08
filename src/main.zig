@@ -162,8 +162,16 @@ pub fn main() !void {
         c.glClearColor(0.5, 0.3, 0.3, 1.0);
         c.glClear(c.GL_COLOR_BUFFER_BIT);
 
+        const timeValue: f32 = @floatCast(c.glfwGetTime());
+        const redValue: f32 = (@sin(timeValue + 0.0) * 0.5) + 0.5;
+        const greenValue: f32 = (@sin(timeValue + 2.0) * 0.5) + 0.5;
+        const blueValue: f32 = (@sin(timeValue + 4.0) * 0.5) + 0.5;
+
+        const vertexColorLocation = c.glGetUniformLocation(shaderProgram, "ourColor");
+
         c.glUseProgram(shaderProgram);
         c.glBindVertexArray(VAO);
+        c.glUniform4f(vertexColorLocation, redValue, greenValue, blueValue, 1.0);
         c.glDrawElements(c.GL_TRIANGLES, 6, c.GL_UNSIGNED_INT, null);
 
         c.glfwSwapBuffers(window);
